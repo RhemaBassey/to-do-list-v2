@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 // import { Link } from "react-router-dom";
 // import axios from "axios";
-const postedTasks = [];
+const postedTasks = ["eat", "sleep", "play", "read"];
+const doneTasks = []; //for tasks you've crossed off
 
 export default class MainPage extends Component {
   constructor(props) {
@@ -15,28 +16,39 @@ export default class MainPage extends Component {
       task: "",
       decoration: "",
       checkedIndex: "",
- 
+      buttonStatus: "disabled",
+
+      refresh:"",
+      
     };
   }
 
   onClickCheckbox(e) {
-    if(this.state.checkedIndex !== e.target.value){
-    this.setState({
-      checkedIndex: e.target.value
-    })}
+    const value = e.target.value;
 
-    else{
-      this.setState({
-        checkedIndex:""
-      })
+    // adds element if doneTasks is empty
+    if (doneTasks.length === 0) {
+      doneTasks.push(value);
     }
-    // console.log(this.state.checkedIndex)
 
-    // postedTasks[value] = "crossed"
-    // this.setState({
-    //   decoration:""
-    // })
+    // removes and adds element from doneTasks
+    else{
+      for (var i = 0; i < doneTasks.length; i++) {
+        if (value === doneTasks[i]) {
+           doneTasks.splice(i, 1);
+           break
+        }
+        else if (i === doneTasks.length - 1) {
+          doneTasks.push(value);
+          break
+        }
+      }
+    }
+    this.setState({
+      refresh:""
+    })
   }
+
 
   onChange(e) {
     this.setState({
@@ -47,14 +59,10 @@ export default class MainPage extends Component {
   onSubmit(e) {
     e.preventDefault();
     postedTasks.push(this.state.task);
-    console.log(postedTasks);
     this.setState({
       task: "",
     });
   }
-  // e.target.value === "2" ? this.setState({
-  //   decoration:"line-through"
-  // }): this.setState({decoration:""})
 
   taskList() {
     return postedTasks.map((currentTask, index) => {
@@ -62,9 +70,10 @@ export default class MainPage extends Component {
         <p key={index}>
           <input type="checkbox" value={index} onClick={this.onClickCheckbox} />{" "}
           <span
-            style={
-              (this.state.checkedIndex === index.toString())
-                ? { textDecoration: "line-through" }
+
+            style={  
+                doneTasks.includes(index.toString())
+                              ? { textDecoration: "line-through" }
                 : { textDecoration: "" }
             }
           >
@@ -91,7 +100,7 @@ export default class MainPage extends Component {
             onChange={this.onChange}
             value={this.state.task}
           />
-          <input type="submit" className="btn btn-primary" />
+          <input type="submit" className="btn btn-primary" disabled={this.state.task.length < 1}/>
         </form>
       </div>
     );
