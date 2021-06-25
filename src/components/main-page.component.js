@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 // import { Link } from "react-router-dom";
-// import axios from "axios";
-const postedTasks = ["eat", "sleep", "play", "read"];
+import axios from "axios";
+
+const postedTasks = [];
 const doneTasks = []; //for tasks you've crossed off
 
 export default class MainPage extends Component {
@@ -18,9 +19,15 @@ export default class MainPage extends Component {
       checkedIndex: "",
       buttonStatus: "disabled",
 
-      refresh:"",
-      
+      refresh: "",
     };
+  }
+
+  // getting data from the DB, and inserting it in postedTask
+  componentDidMount(){
+    axios
+    .get("http://localhost:500/")
+    .then((response) => {})
   }
 
   onClickCheckbox(e) {
@@ -32,23 +39,21 @@ export default class MainPage extends Component {
     }
 
     // removes and adds element from doneTasks
-    else{
+    else {
       for (var i = 0; i < doneTasks.length; i++) {
         if (value === doneTasks[i]) {
-           doneTasks.splice(i, 1);
-           break
-        }
-        else if (i === doneTasks.length - 1) {
+          doneTasks.splice(i, 1);
+          break;
+        } else if (i === doneTasks.length - 1) {
           doneTasks.push(value);
-          break
+          break;
         }
       }
     }
     this.setState({
-      refresh:""
-    })
+      refresh: "",
+    });
   }
-
 
   onChange(e) {
     this.setState({
@@ -59,6 +64,15 @@ export default class MainPage extends Component {
   onSubmit(e) {
     e.preventDefault();
     postedTasks.push(this.state.task);
+
+
+    const theTask = {
+      task: this.state.task
+    }
+
+    // 'theTask' data gets sent, and inside it 'task' is used in the router backend.
+    axios.post('http://localhost:5000/', theTask).then(res => console.log(res.data))
+    
     this.setState({
       task: "",
     });
@@ -70,10 +84,9 @@ export default class MainPage extends Component {
         <p key={index}>
           <input type="checkbox" value={index} onClick={this.onClickCheckbox} />{" "}
           <span
-
-            style={  
-                doneTasks.includes(index.toString())
-                              ? { textDecoration: "line-through" }
+            style={
+              doneTasks.includes(index.toString())
+                ? { textDecoration: "line-through" }
                 : { textDecoration: "" }
             }
           >
@@ -100,7 +113,11 @@ export default class MainPage extends Component {
             onChange={this.onChange}
             value={this.state.task}
           />
-          <input type="submit" className="btn btn-primary" disabled={this.state.task.length < 1}/>
+          <input
+            type="submit"
+            className="btn btn-primary"
+            disabled={this.state.task.length < 1}
+          />
         </form>
       </div>
     );
