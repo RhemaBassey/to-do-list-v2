@@ -2,9 +2,6 @@ import React, { Component } from "react";
 // import { Link } from "react-router-dom";
 import axios from "axios";
 
-const postedTasks = [];
-const doneTasks = []; //for tasks you've crossed off
-
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
@@ -15,44 +12,33 @@ export default class MainPage extends Component {
 
     this.state = {
       task: "",
-      decoration: "",
-      checkedIndex: "",
-      buttonStatus: "disabled",
+      postedTasks: [], //for task you've submitted
+      doneTasks: [], //for tasks you've crossed off
 
       refresh: "",
     };
   }
 
   // getting data from the DB, and inserting it in postedTask
-  componentDidMount(){
-    axios
-    .get("http://localhost:500/")
-    .then((response) => {})
+  componentDidMount() {
+    axios.get("http://localhost:5000/").then((response) => {
+      response.data.map((element) => this.state.postedTasks.push(element.task));
+      this.setState({
+        refresh: "",
+      });
+    });
   }
 
   onClickCheckbox(e) {
     const value = e.target.value;
-
-    // adds element if doneTasks is empty
-    if (doneTasks.length === 0) {
-      doneTasks.push(value);
-    }
+    const doneTasks = this.state.doneTasks;
 
     // removes and adds element from doneTasks
-    else {
-      for (var i = 0; i < doneTasks.length; i++) {
-        if (value === doneTasks[i]) {
-          doneTasks.splice(i, 1);
-          break;
-        } else if (i === doneTasks.length - 1) {
-          doneTasks.push(value);
-          break;
-        }
-      }
-    }
-    this.setState({
-      refresh: "",
-    });
+    doneTasks.includes(value)
+      ? this.setState(doneTasks.splice(doneTasks.indexOf(value), 1))
+      : this.setState({
+          doneTasks: [...doneTasks, value],
+        });
   }
 
   onChange(e) {
@@ -63,29 +49,32 @@ export default class MainPage extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    postedTasks.push(this.state.task);
 
-
-    const theTask = {
-      task: this.state.task
-    }
-
-    // 'theTask' data gets sent, and inside it 'task' is used in the router backend.
-    axios.post('http://localhost:5000/', theTask).then(res => console.log(res.data))
-    
+    //post task to your browser
     this.setState({
+      postedTasks: [...this.state.postedTasks, this.state.task],
       task: "",
     });
+
+    //post task to the DB
+    const theTask = {
+      task: this.state.task,
+    };
+
+    // 'theTask' data gets sent, and inside it, 'task' is used in the router backend.
+    axios
+      .post("http://localhost:5000/", theTask)
+      .then((res) => console.log(res.data));
   }
 
   taskList() {
-    return postedTasks.map((currentTask, index) => {
+    return this.state.postedTasks.map((currentTask, index) => {
       return (
         <p key={index}>
           <input type="checkbox" value={index} onClick={this.onClickCheckbox} />{" "}
           <span
             style={
-              doneTasks.includes(index.toString())
+              this.state.doneTasks.includes(index.toString())
                 ? { textDecoration: "line-through" }
                 : { textDecoration: "" }
             }
@@ -119,6 +108,9 @@ export default class MainPage extends Component {
             disabled={this.state.task.length < 1}
           />
         </form>
+                  {this.state.doneTasks.length > 0 && (
+              <button className="btn btn-primary btn-dark"> Delete </button>
+          )}
       </div>
     );
   }
