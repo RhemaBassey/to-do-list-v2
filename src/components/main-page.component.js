@@ -6,6 +6,7 @@ export default class MainPage extends Component {
   constructor(props) {
     super(props);
 
+    this.deleteTask = this.deleteTask.bind(this)
     this.onClickCheckbox = this.onClickCheckbox.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -14,6 +15,7 @@ export default class MainPage extends Component {
       task: "",
       postedTasks: [], //for task you've submitted
       doneTasks: [], //for tasks you've crossed off
+      _id: "blah",
 
       refresh: "",
     };
@@ -28,6 +30,33 @@ export default class MainPage extends Component {
       });
     });
   }
+
+  deleteTask() {
+    const doneTasks = {
+      _id: this.state.doneTasks[0]
+    }
+    // this.state.doneTasks.forEach(element => {
+        console.log(doneTasks._id)
+        axios.delete('http://localhost:5000/' + doneTasks._id).then (res => console.log(res.data))
+        this.setState({
+          refresh:""
+        })
+
+    
+
+
+
+
+        
+        // .then (res => console.log(res.data))
+    // })
+
+    // axios.delete('http://localhost:5000/')
+    // .then(res => console.log(res.data))
+    // this.setState({
+    //     postedTasks: this.state.exercises.filter(el => el._id !== id)
+    // })
+}
 
   onClickCheckbox(e) {
     const value = e.target.value;
@@ -58,6 +87,7 @@ export default class MainPage extends Component {
 
     //post task to the DB
     const theTask = {
+      _id: this.state.postedTasks.length,
       task: this.state.task,
     };
 
@@ -105,11 +135,12 @@ export default class MainPage extends Component {
           <input
             type="submit"
             className="btn btn-primary"
+            value = {this.state.postedTasks.length}
             disabled={this.state.task.length < 1}
           />
         </form>
                   {this.state.doneTasks.length > 0 && (
-              <button className="btn btn-primary btn-dark"> Delete </button>
+              <button className="btn btn-primary btn-dark" onClick={this.deleteTask}> Delete </button>
           )}
       </div>
     );
