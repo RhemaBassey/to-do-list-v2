@@ -22,10 +22,10 @@ router.route("/").post((req, res) => {
 });
 
 router.route("/:id").delete((req, res) => {
-  //  const _id = req.body._id;
+   const _id = req.params.id
 
-  Task.findByIdAndDelete(req.params.id)
-  .then(() => res.json("Tasks deleted >>" + req.params.id))
+  Task.findByIdAndDelete(_id)
+  .then(() => res.json("Tasks deleted >>" ))
   .catch((err) => res.status(400).json("Error: " + err));
 })
 

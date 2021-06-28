@@ -6,7 +6,7 @@ export default class MainPage extends Component {
   constructor(props) {
     super(props);
 
-    this.deleteTask = this.deleteTask.bind(this)
+    this.deleteTask = this.deleteTask.bind(this);
     this.onClickCheckbox = this.onClickCheckbox.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -14,6 +14,7 @@ export default class MainPage extends Component {
     this.state = {
       task: "",
       postedTasks: [], //for task you've submitted
+      postedTasksID: [],
       doneTasks: [], //for tasks you've crossed off
       _id: "blah",
 
@@ -24,39 +25,51 @@ export default class MainPage extends Component {
   // getting data from the DB, and inserting it in postedTask
   componentDidMount() {
     axios.get("http://localhost:5000/").then((response) => {
-      response.data.map((element) => this.state.postedTasks.push(element.task));
+      response.data.map((element) => {
+
+        return (
+          this.state.postedTasks.push(element.task),
+          this.state.postedTasksID.push(element._id),
+          console.log(element._id)   
+        );
+           
+      });
       this.setState({
         refresh: "",
       });
     });
+
   }
 
   deleteTask() {
-    const doneTasks = {
-      _id: this.state.doneTasks[0]
-    }
-    // this.state.doneTasks.forEach(element => {
-        console.log(doneTasks._id)
-        axios.delete('http://localhost:5000/' + doneTasks._id).then (res => console.log(res.data))
-        this.setState({
-          refresh:""
-        })
+    const doneTasks = this.state.doneTasks;
+    const postedTasksID = this.state.postedTasksID;
+    const postedTasks = this.state.postedTasks;
 
-    
+    doneTasks.forEach((element) => {
+      // trueIndex is the _id of the postedTask, a better form of ID as it's value does not vary with array length changes after deletion, opposed to using plain index of doneTask
+      const trueIndex = postedTasksID.indexOf(parseInt(element));
+
+      //frontend deletion
+      this.setState(postedTasks.splice(trueIndex, 1));
+      this.setState(postedTasksID.splice(trueIndex, 1));
+
+      //backend deletion
+      // const id =  postedTasksID[trueIndex]
+      // console.log(id)
+
+      const id = element
+      axios
+      .delete("http://localhost:5000/" + id)
+      .then((res) => console.log(res.data));
+
+    });
 
 
-
-
-        
-        // .then (res => console.log(res.data))
-    // })
-
-    // axios.delete('http://localhost:5000/')
-    // .then(res => console.log(res.data))
-    // this.setState({
-    //     postedTasks: this.state.exercises.filter(el => el._id !== id)
-    // })
-}
+    this.setState({
+      doneTasks: [],
+    });
+  }
 
   onClickCheckbox(e) {
     const value = e.target.value;
@@ -82,14 +95,24 @@ export default class MainPage extends Component {
     //post task to your browser
     this.setState({
       postedTasks: [...this.state.postedTasks, this.state.task],
+
+      postedTasksID: [
+        ...this.state.postedTasksID,
+        this.state.postedTasksID.length > 0
+          ? this.state.postedTasksID.slice(-1)[0] + 1
+          : 0,
+      ], //slice here is used to get the last element of the postedTasksID array
       task: "",
     });
 
     //post task to the DB
     const theTask = {
-      _id: this.state.postedTasks.length,
+      _id: this.state.postedTasksID.length > 0
+      ? parseInt(this.state.postedTasksID.slice(-1)[0]) + 1
+      : 0, // last value
       task: this.state.task,
     };
+    // console.log(theTask._id)
 
     // 'theTask' data gets sent, and inside it, 'task' is used in the router backend.
     axios
@@ -100,11 +123,18 @@ export default class MainPage extends Component {
   taskList() {
     return this.state.postedTasks.map((currentTask, index) => {
       return (
-        <p key={index}>
-          <input type="checkbox" value={index} onClick={this.onClickCheckbox} />{" "}
+        // ratherm than use pure 'index', as done before, I used the postedTasksID to sync my postedTasksID to each postedTask (thus making deletion easier).
+        <p key={this.state.postedTasksID[index]}>
+          <input
+            type="checkbox"
+            value={this.state.postedTasksID[index]}
+            onClick={this.onClickCheckbox}
+          />{" "}
           <span
             style={
-              this.state.doneTasks.includes(index.toString())
+              this.state.doneTasks.includes(
+                String(this.state.postedTasksID[index])
+              )
                 ? { textDecoration: "line-through" }
                 : { textDecoration: "" }
             }
@@ -135,13 +165,19 @@ export default class MainPage extends Component {
           <input
             type="submit"
             className="btn btn-primary"
-            value = {this.state.postedTasks.length}
+            value= "+"
             disabled={this.state.task.length < 1}
           />
         </form>
-                  {this.state.doneTasks.length > 0 && (
-              <button className="btn btn-primary btn-dark" onClick={this.deleteTask}> Delete </button>
-          )}
+        {this.state.doneTasks.length > 0 && (
+          <button
+            className="btn btn-primary btn-dark"
+            onClick={this.deleteTask}
+          >
+            {" "}
+            Delete{" "}
+          </button>
+        )}
       </div>
     );
   }
