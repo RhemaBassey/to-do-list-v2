@@ -26,19 +26,16 @@ export default class MainPage extends Component {
   componentDidMount() {
     axios.get("http://localhost:5000/").then((response) => {
       response.data.map((element) => {
-
         return (
           this.state.postedTasks.push(element.task),
-          this.state.postedTasksID.push(element._id),
-          console.log(element._id)   
+          this.state.postedTasksID.push(element._id)
+          // element.isDone && this.state.doneTasks.push(element.isDone)
         );
-           
       });
       this.setState({
         refresh: "",
       });
     });
-
   }
 
   deleteTask() {
@@ -58,13 +55,11 @@ export default class MainPage extends Component {
       // const id =  postedTasksID[trueIndex]
       // console.log(id)
 
-      const id = element
+      const id = element;
       axios
-      .delete("http://localhost:5000/" + id)
-      .then((res) => console.log(res.data));
-
+        .delete("http://localhost:5000/" + id)
+        .then((res) => console.log(res.data));
     });
-
 
     this.setState({
       doneTasks: [],
@@ -75,12 +70,29 @@ export default class MainPage extends Component {
     const value = e.target.value;
     const doneTasks = this.state.doneTasks;
 
-    // removes and adds element from doneTasks
+    // removes and adds element from doneTasks in DB (had to updated DB first, otherwise code won't properly work)
+    // const doneStatus = {
+    //   id: value,
+    //   checked: null,
+    // };
+
+
+    // doneTasks.includes(value) ?     
+    // axios
+    // .post("http://localhost:5000/done/remove/" )
+    // .then((res) => console.log(res.data)): 
+
+    
+    
+
+    // removes and adds element from doneTasks in browser
     doneTasks.includes(value)
       ? this.setState(doneTasks.splice(doneTasks.indexOf(value), 1))
       : this.setState({
           doneTasks: [...doneTasks, value],
         });
+
+
   }
 
   onChange(e) {
@@ -107,10 +119,12 @@ export default class MainPage extends Component {
 
     //post task to the DB
     const theTask = {
-      _id: this.state.postedTasksID.length > 0
-      ? parseInt(this.state.postedTasksID.slice(-1)[0]) + 1
-      : 0, // last value
+      _id:
+        this.state.postedTasksID.length > 0
+          ? parseInt(this.state.postedTasksID.slice(-1)[0]) + 1
+          : 0, // last value
       task: this.state.task,
+      isDone: false,
     };
     // console.log(theTask._id)
 
@@ -135,7 +149,7 @@ export default class MainPage extends Component {
               this.state.doneTasks.includes(
                 String(this.state.postedTasksID[index])
               )
-                ? { textDecoration: "line-through" }
+                ? { textDecoration: "line-through", fontStyle: "italic" }
                 : { textDecoration: "" }
             }
           >
@@ -165,7 +179,7 @@ export default class MainPage extends Component {
           <input
             type="submit"
             className="btn btn-primary"
-            value= "+"
+            value="+"
             disabled={this.state.task.length < 1}
           />
         </form>

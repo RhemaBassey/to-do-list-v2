@@ -11,8 +11,9 @@ router.route("/").get((req, res) => {
 router.route("/").post((req, res) => {
   const _id = req.body._id;
   const task = req.body.task; // NOTE: here we use task instead of theTask
+  const isDone = req.body.isDone
 
-  const newTask = new Task({ _id, task });
+  const newTask = new Task({ _id, task, isDone });
   console.log(task);
 
   newTask
@@ -29,4 +30,42 @@ router.route("/:id").delete((req, res) => {
   .catch((err) => res.status(400).json("Error: " + err));
 })
 
+router.route("/done/add/").post((req, res) => { 
+ 
+  // const id = req.params.value
+
+  console.log(">> added")
+
+
+//  Task.findByIdAndUpdate(id, {
+//    "isDone": true
+//  }, (err, result) =>{
+//    if(err){
+//     //  res.send(err)
+//    }
+//    else{
+//     //  res.send(result)
+//    }
+//  })
+})
+
+router.route("/done/remove/").post((req, res) => { 
+  // const id = req.params.value
+
+  
+//  Task.findByIdAndUpdate(id, {
+//   "isDone": false
+// }, (err, result) =>{
+//   if(err){
+//    //  res.send(err)
+//   }
+//   else{
+//    //  res.send(result)
+//   }
+// })
+ 
+
+  console.log( ">> removed")
+
+})
 module.exports = router;
