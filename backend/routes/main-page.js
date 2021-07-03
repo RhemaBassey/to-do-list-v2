@@ -30,42 +30,32 @@ router.route("/:id").delete((req, res) => {
   .catch((err) => res.status(400).json("Error: " + err));
 })
 
-router.route("/done/add/").post((req, res) => { 
- 
-  // const id = req.params.value
+router.route("/done/add/:id").post((req, res) => { 
+  Task.findById(req.params.id)
+  .then(doneStatus1 => { // you can call it update/ anything else
+    doneStatus1.task = req.body.task;
+    doneStatus1.isDone = req.body.isDone
 
-  console.log(">> added")
-
-
-//  Task.findByIdAndUpdate(id, {
-//    "isDone": true
-//  }, (err, result) =>{
-//    if(err){
-//     //  res.send(err)
-//    }
-//    else{
-//     //  res.send(result)
-//    }
-//  })
+    doneStatus1.save()
+    .then(() => res.json('Task updated!'))
+    .catch(err => res.status(400).json('Error: ' + err))
+  })
+  .catch(err => res.status(400).json('Error: ' + err))
 })
 
-router.route("/done/remove/").post((req, res) => { 
-  // const id = req.params.value
-
-  
-//  Task.findByIdAndUpdate(id, {
-//   "isDone": false
-// }, (err, result) =>{
-//   if(err){
-//    //  res.send(err)
-//   }
-//   else{
-//    //  res.send(result)
-//   }
-// })
- 
-
-  console.log( ">> removed")
+router.route("/done/remove/:id").post((req, res) => { 
+  Task.findById(req.params.id)
+  .then(doneStatus2 => { // you can call it update/ anything else
+    doneStatus2.task = req.body.task;
+    doneStatus2.isDone = req.body.isDone
+    
+    doneStatus2.save()
+    .then(() => res.json('Task updated!'))
+    .catch(err => res.status(400).json('Error: ' + err))
+  })
+  .catch(err => res.status(400).json('Error: ' + err))
 
 })
+
+
 module.exports = router;

@@ -6,6 +6,7 @@ export default class MainPage extends Component {
   constructor(props) {
     super(props);
 
+
     this.deleteTask = this.deleteTask.bind(this);
     this.onClickCheckbox = this.onClickCheckbox.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -28,8 +29,8 @@ export default class MainPage extends Component {
       response.data.map((element) => {
         return (
           this.state.postedTasks.push(element.task),
-          this.state.postedTasksID.push(element._id)
-          // element.isDone && this.state.doneTasks.push(element.isDone)
+          this.state.postedTasksID.push(element._id),
+          element.isDone && this.state.doneTasks.push(String(element._id))
         );
       });
       this.setState({
@@ -37,6 +38,8 @@ export default class MainPage extends Component {
       });
     });
   }
+
+
 
   deleteTask() {
     const doneTasks = this.state.doneTasks;
@@ -69,18 +72,33 @@ export default class MainPage extends Component {
   onClickCheckbox(e) {
     const value = e.target.value;
     const doneTasks = this.state.doneTasks;
+    const postedTasksID = this.state.postedTasksID
+    const trueIndex = postedTasksID.indexOf(parseInt(value))
+
 
     // removes and adds element from doneTasks in DB (had to updated DB first, otherwise code won't properly work)
-    // const doneStatus = {
-    //   id: value,
-    //   checked: null,
-    // };
+    const doneStatus1 = {
+      task: this.state.postedTasks[trueIndex],
+      isDone: false
+    };
+
+    const doneStatus2 = {
+      task: this.state.postedTasks[trueIndex],
+      isDone: true
+    };
 
 
-    // doneTasks.includes(value) ?     
-    // axios
-    // .post("http://localhost:5000/done/remove/" )
-    // .then((res) => console.log(res.data)): 
+
+
+    doneTasks.includes(value) ?     
+    axios
+    .post("http://localhost:5000/done/remove/" + value, doneStatus1 )
+    .then((res) => console.log(res.data)): 
+    axios
+    .post("http://localhost:5000/done/add/" + value, doneStatus2 )
+    .then((res) => console.log(res.data))
+
+
 
     
     
@@ -143,12 +161,15 @@ export default class MainPage extends Component {
             type="checkbox"
             value={this.state.postedTasksID[index]}
             onClick={this.onClickCheckbox}
+            defaultChecked = {this.state.doneTasks.includes((this.state.postedTasksID[index]).toString())}
+            
           />{" "}
           <span
             style={
               this.state.doneTasks.includes(
                 String(this.state.postedTasksID[index])
-              )
+              ) 
+              //|| this.state.isDone === true
                 ? { textDecoration: "line-through", fontStyle: "italic" }
                 : { textDecoration: "" }
             }
@@ -192,6 +213,7 @@ export default class MainPage extends Component {
             Delete{" "}
           </button>
         )}
+ 
       </div>
     );
   }
