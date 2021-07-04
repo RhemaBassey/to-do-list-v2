@@ -7,5 +7,39 @@
     padding-bottom: 3%;
 }
 
+.nav-heading{
+    padding-left: 25px;
+}
 
+.nav-content{
+    padding-left: 50px;
+}
 
+.nav-form{
+    padding-left: 30%;
+
+    
+}
+.nav-input{
+    margin-right: 10px
+}
+.navbar-toggle{
+    margin-right: 15px;
+}
+
+.hide{
+    display:none;
+    color: rgba(128, 128, 128, 0.39);
+    padding-left:5px;
+}
+
+.tasks{
+    width: 50%
+}
+
+p:hover{
+    color: rgb(148, 148, 148)
+}
+p:hover .hide{
+    display:inline;
+}
