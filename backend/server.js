@@ -45,6 +45,8 @@ connection.once('open', () => {
 
 // links the 'main-page' route to the  (main page) '/' directory
 app.use('/', require('./routes/main-page'))
+// app.use('/category/:name', require('./routes/main-page'))
+
 
 // starts the server
 app.listen(port, () => {

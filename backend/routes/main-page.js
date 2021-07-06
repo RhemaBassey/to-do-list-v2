@@ -1,6 +1,20 @@
 const router = require("express").Router();
 let Task = require("../models/task.model");
 
+//-------------------------------------------------------------
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const cTaskSchema = new Schema({
+  // _id: { type: Number, required: true },
+  task: { type: String, required: true },
+  // isDone: {type: Boolean, required: true}
+});
+
+// const Work = mongoose.model("work", cTaskSchema);
+//--------------------------------------------------------------
+
+
 router.route("/").get((req, res) => {
   Task.find()
     .then((x) => res.json(x))
@@ -57,5 +71,22 @@ router.route("/done/remove/:id").post((req, res) => {
 
 })
 
+router.route("/c/:name").post((req,res)=>{
+  const categoryName = req.params.name
+  console.log(categoryName)
+
+  const Work = mongoose.model(categoryName, cTaskSchema, categoryName);// the third parameter allows us to explicitly name our collection, rather than a default plural
+  // const _id = 1
+  const task = " hope this works :) "// NOTE: here we use task instead of theTask
+  // const isDone = "req.body.isDone"
+
+  const newWork = new Work({  task});
+
+  newWork
+    .save()
+    .then(() => res.json("Task added!"))
+    .catch((err) => res.status(400).json("Error: " + err));
+
+})
 
 module.exports = router;
