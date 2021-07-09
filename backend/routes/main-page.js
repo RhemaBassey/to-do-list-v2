@@ -71,6 +71,16 @@ router.route("/done/remove/:id").post((req, res) => {
 
 })
 
+router.route("/c/:name").get((req, res) => {
+  const categoryName = req.params.name
+  const cTask = mongoose.model(req.body.name, cTaskSchema, categoryName )
+  
+  cTask.find()
+    .then((x) => res.json(x))
+    .catch((err) => res.status(400).json("Error: " + err));
+});
+ 
+
 router.route("/c/:name").post((req,res)=>{
   const categoryName = req.params.name
   console.log(categoryName)

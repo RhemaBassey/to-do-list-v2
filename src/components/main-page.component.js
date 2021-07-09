@@ -4,7 +4,7 @@ import axios from "axios";
 
 export default class MainPage extends Component {
   constructor(props) {
-    super(props);
+    super(props); 
 
     //|| this.state.isDone === true
     this.trash = this.trash.bind(this);
