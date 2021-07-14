@@ -8,7 +8,7 @@ import NoMatch from "./components/no-match.jsx"
 import MainPage from "./components/main-page.component"
 import Subcategory from "./components/subcategory.component"
 
-const name=["test","rest"]
+
 function App() {
   return (
     <Router>
@@ -21,7 +21,7 @@ function App() {
             <Navbar />
             <br />
             <MainPage />
-        </Route>
+        </Route> 
 
         <Route path={"/c/:name" }>
           <Navbar />

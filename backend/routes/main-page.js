@@ -6,9 +6,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const cTaskSchema = new Schema({
-  // _id: { type: Number, required: true },
+  _id: { type: Number, required: true },
   task: { type: String, required: true },
-  // isDone: {type: Boolean, required: true}
+  isDone: {type: Boolean, required: true}
 });
 
 // const Work = mongoose.model("work", cTaskSchema);
@@ -86,11 +86,11 @@ router.route("/c/:name").post((req,res)=>{
   console.log(categoryName)
 
   const Work = mongoose.model(categoryName, cTaskSchema, categoryName);// the third parameter allows us to explicitly name our collection, rather than a default plural
-  // const _id = 1
-  const task = " hope this works :) "// NOTE: here we use task instead of theTask
-  // const isDone = "req.body.isDone"
+  const _id = req.body._id
+  const task = req.body.task
+  const isDone = req.body.isDone
 
-  const newWork = new Work({  task});
+  const newWork = new Work({  _id,task,isDone });
 
   newWork
     .save()
@@ -98,5 +98,19 @@ router.route("/c/:name").post((req,res)=>{
     .catch((err) => res.status(400).json("Error: " + err));
 
 })
+
+// router.route("/c/:name/done/remove/").post()
+
+router.route("/c/:name/:id").delete((req, res) => {
+  const categoryName = req.params.name
+  const _id = req.params.id
+
+  const cTask = mongoose.model(categoryName, cTaskSchema, categoryName);
+
+  cTask.findByIdAndDelete(_id)
+  .then(() => res.json("Tasks deleted >>" ))
+  .catch((err) => res.status(400).json("Error: " + err));
+})
+          
 
 module.exports = router;

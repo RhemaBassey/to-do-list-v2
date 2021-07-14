@@ -15,8 +15,9 @@ export default class NavigationBar extends Component {
   createCategory(){
     var categoryName = prompt("New Category Name:","")
     if (categoryName !== "" && categoryName !==null){
-        axios.post("http://localhost:5000/c/"+categoryName).then((res) => console.log(res.data));
-        console.log("hit")
+        // axios.post("http://localhost:5000/c/"+categoryName).then((res) => console.log(res.data));
+        // console.log("hit")
+        window.location = "/c/" + categoryName;
     }
   }
 
