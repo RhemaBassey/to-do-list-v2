@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-// import {Link, useParams} from "react-router-dom"
+import {Link} from "react-router-dom"
 import axios from "axios";
+import "../styles.css" 
 
 const name = window.location.pathname;
 
@@ -43,27 +44,32 @@ export default class Subcategory extends Component {
   onClickCheckbox(e) {
     const value = e.target.value;
     const doneTasks = this.state.doneTasks;
-    // const postedTasksID = this.state.postedTasksID;
-    // const trueIndex = postedTasksID.indexOf(parseInt(value));
+    const postedTasksID = this.state.postedTasksID;
+    const trueIndex = postedTasksID.indexOf(parseInt(value));
+    const title =  name.slice(3, name.length)
 
-    // // removes and adds element from doneTasks in DB (had to updated DB first, otherwise code won't properly work)
-    // const doneStatus1 = {
-    //   task: this.state.postedTasks[trueIndex],
-    //   isDone: false,
-    // };
+    // removes and adds element from doneTasks in DB (had to updated DB first, otherwise code won't properly work)
+    const doneStatus1 = {
+      task: this.state.postedTasks[trueIndex],
+      isDone: false,
+    };
+  
 
-    // const doneStatus2 = {
-    //   task: this.state.postedTasks[trueIndex],
-    //   isDone: true,
-    // };
+    const doneStatus2 = {
+      task: this.state.postedTasks[trueIndex],
+      isDone: true,
+    };
 
-    // doneTasks.includes(value)
-    //   ? axios
-    //       .post("http://localhost:5000/c/" + name + "/done/remove/" + value, doneStatus1)
-    //       .then((res) => console.log(res.data))
-    //   : axios
-    //       .post("http://localhost:5000/c/" + name + "/done/add/" + value, doneStatus2)
-    //       .then((res) => console.log(res.data));
+    console.log(doneStatus1.task)
+    console.log(doneStatus2.task)
+
+    doneTasks.includes(value)
+      ? axios
+          .post("http://localhost:5000/c/" + title + "/isDoneFalse/" + value, doneStatus1)
+          .then((res) => console.log(res.data))
+      : axios
+          .post("http://localhost:5000/c/" + title + "/isDoneTrue/" + value, doneStatus2)
+          .then((res) => console.log(res.data));
 
     // removes and adds element from doneTasks in browser
     doneTasks.includes(value)
@@ -154,6 +160,9 @@ export default class Subcategory extends Component {
             type="checkbox"
             onClick={this.onClickCheckbox}
             value={this.state.postedTasksID[index]}
+            defaultChecked={this.state.doneTasks.includes(
+              this.state.postedTasksID[index].toString()
+            )}
           />
           <span
             style={
@@ -166,6 +175,16 @@ export default class Subcategory extends Component {
             }
           >
             {currentTask}
+                        {/* trash icon  */}
+                        <span >
+              <Link to="#" className="hide">
+                <i
+                  id={index}
+                  onClick={this.trash}
+                  className="far fa-trash-alt"
+                ></i>
+              </Link>
+            </span>
           </span>
         </p>
       );

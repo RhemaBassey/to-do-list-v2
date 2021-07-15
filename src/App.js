@@ -25,6 +25,7 @@ function App() {
 
         <Route path={"/c/:name" }>
           <Navbar />
+          <br />
           <Subcategory/>
         </Route>
           

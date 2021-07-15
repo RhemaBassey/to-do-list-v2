@@ -111,6 +111,46 @@ router.route("/c/:name/:id").delete((req, res) => {
   .then(() => res.json("Tasks deleted >>" ))
   .catch((err) => res.status(400).json("Error: " + err));
 })
-          
+
+router.route("/c/:name/isDoneFalse/:id").post((req, res) => { 
+  const categoryName = req.params.name
+  const _id = req.params.id
+
+  const cTask = mongoose.model(categoryName, cTaskSchema, categoryName);
+
+  
+  cTask.findById(_id)
+  .then(doneStatus1 => { // you can call it update/ anything else
+    doneStatus1.task = req.body.task;
+    doneStatus1.isDone = req.body.isDone
+    
+    doneStatus1.save()
+    .then(() => res.json('Task updated!'))
+    .catch(err => res.status(400).json('Error: ' + err))
+  })
+  .catch(err => res.status(400).json('Error: ' + err))
+
+})
+
+
+router.route("/c/:name/isDoneTrue/:id").post((req, res) => { 
+  const categoryName = req.params.name
+  const _id = req.params.id
+
+  const cTask = mongoose.model(categoryName, cTaskSchema, categoryName);
+
+
+  cTask.findById(_id)
+  .then(doneStatus2 => { // you can call it update/ anything else
+    doneStatus2.task = req.body.task;
+    doneStatus2.isDone = req.body.isDone
+    
+    doneStatus2.save()
+    .then(() => res.json('Task updated!'))
+    .catch(err => res.status(400).json('Error: ' + err))
+  })
+  .catch(err => res.status(400).json('Error: ' + err))
+
+})
 
 module.exports = router;
