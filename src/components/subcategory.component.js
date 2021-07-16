@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 import axios from "axios";
-import "../styles.css" 
+import "../styles.css";
 
 const name = window.location.pathname;
+const title = name.slice(3, name.length);
 
 export default class Subcategory extends Component {
   constructor(props) {
     super(props);
 
+    this.edit = this.edit.bind(this)
+    this.trash = this.trash.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
     this.onClickCheckbox = this.onClickCheckbox.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -41,34 +44,65 @@ export default class Subcategory extends Component {
     console.log(this.state.isDone);
   }
 
+  edit(e){
+    console.log(e.target.id)
+  }
+
+  trash(e) {
+    const doneTasks = this.state.doneTasks;
+    const postedTasksID = this.state.postedTasksID;
+    const postedTasks = this.state.postedTasks;
+
+    const value = e.target.id;
+    const valueInt = parseInt(value);
+
+    const actualID = postedTasksID[valueInt];
+
+    //frontend deletion
+    this.setState(postedTasks.splice(valueInt, 1));
+    this.setState(postedTasksID.splice(valueInt, 1));
+    doneTasks.includes(String(actualID)) &&
+      this.setState(doneTasks.splice(doneTasks.indexOf(String(actualID)), 1));
+
+    //backend deletion
+
+    axios
+      .delete("http://localhost:5000/c/" + title + "/" + actualID)
+      .then((res) => console.log(res.data));
+  }
+
   onClickCheckbox(e) {
     const value = e.target.value;
     const doneTasks = this.state.doneTasks;
     const postedTasksID = this.state.postedTasksID;
     const trueIndex = postedTasksID.indexOf(parseInt(value));
-    const title =  name.slice(3, name.length)
 
     // removes and adds element from doneTasks in DB (had to updated DB first, otherwise code won't properly work)
     const doneStatus1 = {
       task: this.state.postedTasks[trueIndex],
       isDone: false,
     };
-  
 
     const doneStatus2 = {
       task: this.state.postedTasks[trueIndex],
       isDone: true,
     };
 
-    console.log(doneStatus1.task)
-    console.log(doneStatus2.task)
+    console.log(doneStatus1.task);
+    console.log(doneStatus2.task);
 
     doneTasks.includes(value)
       ? axios
-          .post("http://localhost:5000/c/" + title + "/isDoneFalse/" + value, doneStatus1)
+          .post(
+            "http://localhost:5000/c/" + title + "/isDoneFalse/" + value,
+            doneStatus1
+          )
           .then((res) => console.log(res.data))
       : axios
-          .post("http://localhost:5000/c/" + title + "/isDoneTrue/" + value, doneStatus2)
+          .post(
+            "http://localhost:5000/c/" + title + "/isDoneTrue/" + value,
+            doneStatus2
+          )
           .then((res) => console.log(res.data));
 
     // removes and adds element from doneTasks in browser
@@ -85,7 +119,7 @@ export default class Subcategory extends Component {
     });
   }
 
-  deleteTask(){
+  deleteTask() {
     const doneTasks = this.state.doneTasks;
     const postedTasksID = this.state.postedTasksID;
     const postedTasks = this.state.postedTasks;
@@ -104,18 +138,20 @@ export default class Subcategory extends Component {
 
       const id = element;
       axios
-        .delete("http://localhost:5000/c/" + name.slice(3, name.length)+"/" + id)
+        .delete(
+          "http://localhost:5000/c/" + name.slice(3, name.length) + "/" + id
+        )
         .then((res) => console.log(res.data));
     });
 
     this.setState({
       doneTasks: [],
     });
-    console.log(doneTasks)
-    console.log(postedTasksID)
-    console.log(postedTasks)
+    console.log(doneTasks);
+    console.log(postedTasksID);
+    console.log(postedTasks);
   }
-  
+
   onSubmit(e) {
     const postedTasksID = this.state.postedTasksID;
 
@@ -163,7 +199,7 @@ export default class Subcategory extends Component {
             defaultChecked={this.state.doneTasks.includes(
               this.state.postedTasksID[index].toString()
             )}
-          />
+          />{" "}
           <span
             style={
               this.state.doneTasks.includes(
@@ -175,14 +211,17 @@ export default class Subcategory extends Component {
             }
           >
             {currentTask}
-                        {/* trash icon  */}
-                        <span >
+            {/* trash icon  */}
+            <span>
               <Link to="#" className="hide">
                 <i
                   id={index}
                   onClick={this.trash}
                   className="far fa-trash-alt"
                 ></i>
+              </Link>
+              <Link to="#" className="hide">
+                <i id={index} onClick={this.edit} className="far fa-edit"></i>
               </Link>
             </span>
           </span>
@@ -195,7 +234,13 @@ export default class Subcategory extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <h1> {name.slice(3, name.length)}</h1>
+          <h1 style={{ textDecoration: "underline" }}>
+            {name.slice(3, name.length)}
+          </h1>
+          <p>
+            {" "}
+            Done: {this.state.doneTasks.length}/{this.state.postedTasks.length}
+          </p>
         </header>
 
         <div className="tasks">{this.taskList()}</div>
