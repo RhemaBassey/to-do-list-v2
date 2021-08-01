@@ -9,8 +9,11 @@ const title = name.slice(3, name.length);
 export default class Subcategory extends Component {
   constructor(props) {
     super(props);
-
-    this.edit = this.edit.bind(this)
+    
+    this.editBtn = this.editBtn.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
+    this.edit = this.edit.bind(this);
+    this.cancelEdit = this.cancelEdit.bind(this)
     this.trash = this.trash.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
     this.onClickCheckbox = this.onClickCheckbox.bind(this);
@@ -18,6 +21,8 @@ export default class Subcategory extends Component {
     this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
+      editPost: "",
+      editIndex: "",
       task: "",
       postedTasks: [],
       refresh: "",
@@ -44,9 +49,47 @@ export default class Subcategory extends Component {
     console.log(this.state.isDone);
   }
 
-  edit(e){
-    console.log(e.target.id)
+  editBtn(e){
+    const index = e.target.id
+    const actualID = this.state.postedTasksID[index]
+
+    // edits the front end
+    this.state.postedTasks[index] = this.state.editPost
+    this.setState({
+      editIndex:""
+    })
+
+    // edits the backend
+      const newEdit = {
+      task: this.state.editPost
+    };
+
+      axios
+          .post(
+            "http://localhost:5000/c/" + title + "/update/" + actualID , newEdit
+          )
+          .then((res) => console.log(res.data));
   }
+
+  edit(e) {
+    this.setState({
+      editIndex: e.target.id,
+      editPost: this.state.postedTasks[e.target.id],
+    });
+  }
+
+  handleEdit(e){
+    this.setState({
+      editPost: e.target.value
+    })
+  }
+
+  cancelEdit(){
+    this.setState({
+      editIndex:""
+    })
+  }
+  
 
   trash(e) {
     const doneTasks = this.state.doneTasks;
@@ -65,7 +108,6 @@ export default class Subcategory extends Component {
       this.setState(doneTasks.splice(doneTasks.indexOf(String(actualID)), 1));
 
     //backend deletion
-
     axios
       .delete("http://localhost:5000/c/" + title + "/" + actualID)
       .then((res) => console.log(res.data));
@@ -192,39 +234,65 @@ export default class Subcategory extends Component {
     return this.state.postedTasks.map((currentTask, index) => {
       return (
         <p key={this.state.postedTasksID[index]}>
-          <input
-            type="checkbox"
-            onClick={this.onClickCheckbox}
-            value={this.state.postedTasksID[index]}
-            defaultChecked={this.state.doneTasks.includes(
-              this.state.postedTasksID[index].toString()
-            )}
-          />{" "}
-          <span
-            style={
-              this.state.doneTasks.includes(
-                String(this.state.postedTasksID[index])
-              )
-                ? //|| this.state.isDone === true
-                  { textDecoration: "line-through", fontStyle: "italic" }
-                : { textDecoration: "" }
-            }
-          >
-            {currentTask}
-            {/* trash icon  */}
+          {this.state.editIndex === String(index) ? (
+            <>
+            <form>
+              <input
+                type="text-box"
+                // defaultValue={this.state.postedTasks[index]}
+                onChange={this.handleEdit}
+                value={this.state.editPost}
+              />{" "}
+              {/* <button className="btn btn-primary" onClick={this.editBtn} id={index}>Edit</button> */}
+                            <input type="submit" className="btn btn-primary" onClick={this.editBtn} id={index} value="Ëdit"/>
+                            <button onClick={this.cancelEdit} className="btn btn-dark">Cancel</button>
+            </form>
+
+              
+            </>
+          ) : (
             <span>
-              <Link to="#" className="hide">
-                <i
-                  id={index}
-                  onClick={this.trash}
-                  className="far fa-trash-alt"
-                ></i>
-              </Link>
-              <Link to="#" className="hide">
-                <i id={index} onClick={this.edit} className="far fa-edit"></i>
-              </Link>
+              {/* defaultValue={this.state.postedTasks[index]} */}
+              <input
+                type="checkbox"
+                onClick={this.onClickCheckbox}
+                value={this.state.postedTasksID[index]}
+                defaultChecked={this.state.doneTasks.includes(
+                  this.state.postedTasksID[index].toString()
+                )}
+              />{" "}
+              <span
+                style={
+                  this.state.doneTasks.includes(
+                    String(this.state.postedTasksID[index])
+                  )
+                    ? //|| this.state.isDone === true
+                      { textDecoration: "line-through", fontStyle: "italic" }
+                    : { textDecoration: "" }
+                }
+              >
+                {currentTask}
+                {/* trash icon  */}
+                <span>
+                  <Link to="#" className="hide">
+                    <i
+                      id={index}
+                      onClick={this.trash}
+                      className="far fa-trash-alt"
+                    ></i>
+                  </Link>
+                  <Link to="#" className="hide">
+                    <i
+                      id={index}
+                      onClick={this.edit}
+            
+                      className="far fa-edit"
+                    ></i>
+                  </Link>
+                </span>
+              </span>
             </span>
-          </span>
+          )}
         </p>
       );
     });

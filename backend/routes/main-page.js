@@ -153,4 +153,24 @@ router.route("/c/:name/isDoneTrue/:id").post((req, res) => {
 
 })
 
+router.route("/c/:name/update/:id").post((req, res) => { 
+  const categoryName = req.params.name
+  const _id = req.params.id
+
+  const cTask = mongoose.model(categoryName, cTaskSchema, categoryName);
+
+
+  cTask.findById(_id)
+  .then(update => { // you can call it update/ anything else
+    update.task = req.body.task;
+
+    
+    update.save()
+    .then(() => res.json('Task updated!'))
+    .catch(err => res.status(400).json('Error: ' + err))
+  })
+  .catch(err => res.status(400).json('Error: ' + err))
+
+})
+
 module.exports = router;
